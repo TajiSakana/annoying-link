@@ -16,7 +16,7 @@ export default function Home() {
     ]
     
     // สุ่มความยาวแบบสะใจ (300 - 600 ตัวอักษร)
-    const length = Math.floor(Math.random() * 300) + 300 
+    const length = Math.floor(Math.random() * 1700) + 300 
     let res = ''
     for (let i = 0; i < length; i++) {
       res += trollChars[Math.floor(Math.random() * trollChars.length)]
