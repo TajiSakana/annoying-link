@@ -163,7 +163,7 @@ export default function Home() {
 
         {/* Footer with Real-time Counter */}
         <footer className="fixed bottom-8 text-center space-y-2 opacity-30 hover:opacity-100 transition-opacity duration-1000">
-          <p className="text-[9px] font-mono tracking-widest text-[#76a771] font-bold">
+          <p className="text-[20px] font-mono tracking-widest text-[#76a771] font-bold">
             {totalLinks.toLocaleString()} LINKS FIXED
           </p>
           {/* <p className="text-[7px] font-mono tracking-[1em] text-slate-400">
