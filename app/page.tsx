@@ -8,10 +8,9 @@ export default function Home() {
   const [loading, setLoading] = useState(false)
   const [copied, setCopied] = useState(false)
   const [totalLinks, setTotalLinks] = useState(0)
-  const [lastUrl, setLastUrl] = useState('') // ดักสแปมลิงก์เดิม
+  const [lastUrl, setLastUrl] = useState('')
   const [errorMsg, setErrorMsg] = useState('')
 
-  // 1. ดึงจำนวนผู้ใช้งานทั้งหมดจาก Supabase มาโชว์ที่ Footer
   const fetchTotalCount = async () => {
     const { count, error } = await supabase
       .from('links')
@@ -23,7 +22,6 @@ export default function Home() {
     fetchTotalCount()
   }, [])
 
-  // 2. ฟังก์ชันตรวจสอบว่าสิ่งที่กรอกคือ URL จริงๆ (ป้องกันพวกพิมพ์ตัวเดียว)
   const isValidUrl = (string: string) => {
     try {
       const pattern = new RegExp('^(https?:\\/\\/)?'+ 
@@ -38,7 +36,6 @@ export default function Home() {
     }
   }
 
-  // 3. ฟังก์ชันเจน "ขีดนรก" ความยาว 300 - 2,000 ตัวอักษร
   const generateAnnoyingPath = () => {
     const trollChars = ['-', '_', '=', 'l', 'I', 'i', '|', '⎯', '⏤', '─', '⎓', '˗', '﹉', '﹍', '﹏']
     const length = Math.floor(Math.random() * 1700) + 300 
@@ -52,8 +49,6 @@ export default function Home() {
   const handleGenerate = async () => {
     setErrorMsg('')
     if (!url) return
-    
-    // ตรวจสอบความถูกต้องของลิงก์
     if (!isValidUrl(url)) {
       setErrorMsg('Invalid URL format--')
       return
@@ -64,7 +59,6 @@ export default function Home() {
       finalUrl = `https://${finalUrl}`
     }
 
-    // ดักสแปม: ถ้าลิงก์ใหม่ เหมือนกับลิงก์ล่าสุดที่เพิ่งเจนไป
     if (finalUrl === lastUrl) {
        setErrorMsg('You just fixed this link--')
        return
@@ -78,12 +72,11 @@ export default function Home() {
         slug: slug, 
         original_url: finalUrl 
       }])
-      
       if (error) throw error
       
       setResult(`${window.location.origin}/${slug}`)
-      setLastUrl(finalUrl) // บันทึกไว้ว่าเพิ่งเจนลิงก์นี้ไป
-      fetchTotalCount() // อัปเดตตัวเลขทันที
+      setLastUrl(finalUrl) 
+      fetchTotalCount()
     } catch (err) {
       console.error(err)
       setErrorMsg('Error--Retry')
@@ -101,74 +94,75 @@ export default function Home() {
   }
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center bg-white p-6 font-sans">
-      <div className="w-full max-w-[450px] flex flex-col items-center">
+    <main className="flex min-h-screen flex-col items-center justify-center bg-white p-4 md:p-6 font-sans">
+      <div className="w-full max-w-[480px] flex flex-col items-center">
         
-        {/* Header Section */}
-        <div className="text-center mb-16 select-none animate-pulse">
-          <h1 className="text-6xl font-light text-[#76a771] tracking-tighter font-mono">
+        {/* Header: ปรับขนาดฟอนต์ให้เล็กลงนิดหน่อยบนมือถือ */}
+        <div className="text-center mb-10 md:mb-16 select-none">
+          <h1 className="text-5xl md:text-6xl font-light text-[#76a771] tracking-tighter font-mono animate-pulse">
             (-_-)<span className="text-slate-200">.</span>li
           </h1>
-          <p className="text-[10px] text-slate-300 mt-2 uppercase tracking-[0.8em]">
+          <p className="text-[9px] md:text-[10px] text-slate-300 mt-2 uppercase tracking-[0.5em] md:tracking-[0.8em]">
             Extra Long Edition--
           </p>
         </div>
 
-        {/* Input Section */}
         <div className="w-full space-y-4">
-          <div className="flex items-center w-full border border-slate-200 rounded-md bg-slate-50/50 focus-within:border-[#76a771] transition-all overflow-hidden shadow-sm">
+          {/* Input: เพิ่มความสูงและ Padding ให้กดง่ายบนมือถือ */}
+          <div className="flex flex-col sm:flex-row items-center w-full border border-slate-200 rounded-lg bg-slate-50/50 focus-within:border-[#76a771] transition-all overflow-hidden shadow-sm">
             <input 
               type="text" 
               value={url} 
               onChange={(e) => {
                 setUrl(e.target.value)
-                setErrorMsg('') // พิมพ์ใหม่ให้ Error หายไป
+                setErrorMsg('')
               }} 
               placeholder="Paste long URL here--"
-              className="flex-grow px-5 py-4 bg-transparent outline-none text-sm text-slate-900 placeholder:text-slate-300 font-bold"
+              className="w-full px-5 py-4 bg-transparent outline-none text-base md:text-sm text-slate-900 placeholder:text-slate-300 font-bold"
             />
             <button 
               onClick={handleGenerate} 
               disabled={loading || !url}
-              className="px-8 py-4 bg-[#76a771] hover:bg-[#659161] text-white transition-all disabled:opacity-30 font-black text-xs tracking-widest"
+              className="w-full sm:w-auto px-10 py-4 bg-[#76a771] hover:bg-[#659161] text-white transition-all disabled:opacity-30 font-black text-xs tracking-widest active:scale-95"
             >
               {loading ? '...' : 'FIX--'}
             </button>
           </div>
           
-          {/* Error Message Display */}
           {errorMsg && (
             <p className="text-[10px] text-red-500 font-mono text-center animate-bounce">
               {errorMsg}
             </p>
           )}
 
-          {/* Result Display */}
+          {/* Result Section: ปรับปรุงการเลื่อนดูลิงก์บนจอสัมผัส */}
           {result && (
-            <div className="flex flex-col w-full border border-[#76a771]/20 rounded-md bg-white overflow-hidden animate-in zoom-in-95 duration-500 shadow-xl">
-              <div className="p-5 max-h-[150px] overflow-y-auto scrollbar-hide">
+            <div className="flex flex-col w-full border border-[#76a771]/20 rounded-lg bg-white overflow-hidden animate-in zoom-in-95 duration-500 shadow-xl">
+              <div className="p-5 max-h-[120px] md:max-h-[150px] overflow-y-auto touch-pan-y scrollbar-hide">
                 <p className="text-[10px] font-mono text-[#5a8a55] break-all leading-relaxed tracking-tighter">
                   {result}
                 </p>
               </div>
               <button 
                 onClick={handleCopy} 
-                className="w-full py-4 bg-[#76a771] text-white font-black text-xs hover:bg-[#659161] transition-all uppercase tracking-[0.3em]"
+                className="w-full py-5 bg-[#76a771] text-white font-black text-xs hover:bg-[#659161] active:bg-[#5a8a55] transition-all uppercase tracking-[0.2em]"
               >
-                {copied ? 'Copied--!' : 'Copy Long Link'}
+                {copied ? 'Copied to Clipboard!' : 'Copy Long Link'}
               </button>
             </div>
           )}
         </div>
 
-        {/* Footer with Real-time Counter */}
-        <footer className="fixed bottom-8 text-center space-y-2 opacity-30 hover:opacity-100 transition-opacity duration-1000">
-          <p className="text-[20px] font-mono tracking-widest text-[#76a771] font-bold">
-            {totalLinks.toLocaleString()} LINKS FIXED
+        {/* Footer: ตัวนับแบบ Pulse สะดุดตา */}
+        <footer className="mt-12 text-center space-y-4 opacity-50 hover:opacity-100 transition-opacity duration-700">
+          <div className="px-6 py-2 border-y border-[#76a771]/10">
+            <p className="text-lg md:text-xl font-mono tracking-widest text-[#76a771] font-bold animate-pulse">
+              {totalLinks.toLocaleString()} LINKS FIXED
+            </p>
+          </div>
+          <p className="text-[8px] font-mono tracking-[0.5em] text-slate-400 uppercase">
+            Thatthap TJ
           </p>
-          {/* <p className="text-[7px] font-mono tracking-[1em] text-slate-400">
-            T
-          </p> */}
         </footer>
 
       </div>
